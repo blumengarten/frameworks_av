@@ -129,6 +129,19 @@ cc_library {
     defaults: [
         "libcameraservice_deps",
     ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-ignored-qualifiers",
+    ] + select(soong_config_variable("libcameraservice", "ext_lib"), {
+        any @ flag_val: ["-DTARGET_PROVIDES_CAMERA_PROVIDER_EXT_LIB"],
+        default: [],
+    }),
+    whole_static_libs: select(soong_config_variable("libcameraservice", "ext_lib"), {
+        any @ flag_val: [flag_val],
+        default: ["libcameraservice_ext_lib"],
+    }),
     // Camera service source
 
     srcs: [
@@ -139,6 +152,7 @@ cc_library {
         "common/CameraDeviceBase.cpp",
         "common/CameraOfflineSessionBase.cpp",
         "common/CameraProviderManager.cpp",
+        "common/CameraProviderExtension.cpp",
         "common/FrameProcessorBase.cpp",
         "common/hidl/HidlProviderInfo.cpp",
         "common/aidl/AidlProviderInfo.cpp",
@@ -232,13 +246,6 @@ cc_library {
     ],
 
     export_include_dirs: ["."],
-
-    cflags: [
-        "-Wall",
-        "-Wextra",
-        "-Werror",
-        "-Wno-ignored-qualifiers",
-    ],
 }
 
 cc_library_static {
@@ -302,3 +309,12 @@ cc_library_static {
         "-Wno-ignored-qualifiers",
     ],
 }
+
+cc_library_static {
+    name: "libcameraservice_ext_lib",
+    srcs: [
+        "common/CameraProviderExtension.cpp",
+    ],
+    export_include_dirs: ["."],
+}
+
